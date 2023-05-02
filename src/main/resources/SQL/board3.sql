@@ -36,19 +36,23 @@ create table popularSearch
 
 create table liky
 (
+    like_id            int auto_increment primary key,
     board_number       int         not null,
     user_email         varchar(50) not null,
     like_user_profile  text,
     like_user_nickName varchar(30) not null
 
 );
+drop table liky;
 
 create table comment
 (
+    comment_id            int auto_increment primary key,
     board_number          int         not null,
     user_email            varchar(50) not null,
     comment_user_profile  text,
     comment_user_nickName varchar(30) not null,
     comment_write_date    DATE        NOT NULL,
     comment_content       text        not null
-)
+);
+drop table comment;
