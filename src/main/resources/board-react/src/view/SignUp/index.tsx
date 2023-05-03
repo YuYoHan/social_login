@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 
-export default function signUp() {
+export default function SignUp() {
     const [requestResult, setRequestResult] = useState<string>("");
 
     const signUpHandler = () => {
