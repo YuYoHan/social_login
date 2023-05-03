@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
     @PostMapping("/signUp")
-    public ResponseDto<SignUpResponseDto> signUp(@RequestBody SignUpDto signUpDto) {
+    public ResponseDto<?> signUp(@RequestBody SignUpDto signUpDto) {
         return null;
     }
 }
