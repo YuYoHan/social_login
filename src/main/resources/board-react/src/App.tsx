@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import axios from "axios";
+import SignUp from "./view/SignUp/index";
 
 function App() {
     const [connection, setConnection] = useState<string>("");
@@ -27,6 +28,7 @@ function App() {
                 <img src={logo} className="App-logo" alt="logo" />
                 <p>{connection}</p>
             </header>
+            <SignUp />
         </div>
     );
 }
