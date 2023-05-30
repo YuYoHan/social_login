@@ -1,8 +1,6 @@
-<<<<<<< HEAD
 create database board3;
 use board3;
 
-=======
 use board3;
 
 create table user(
@@ -32,4 +30,3 @@ values	('테스트 제목1', 'apple이 작성한 테스트 내용1', 'apple'),
           ('테스트 제목4', 'durian이 작성한 테스트 내용4', 'durian');
 
 insert into board (boardTitle, boardContents, userId) (select boardTitle, boardContents,userId from board);
->>>>>>> feature/join

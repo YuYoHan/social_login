@@ -26,7 +26,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-<<<<<<< HEAD
         <!-- security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -44,8 +43,6 @@
             <artifactId>spring-boot-starter-oauth2-client</artifactId>
             <version>2.3.3.RELEASE</version>
         </dependency>
-=======
->>>>>>> feature/join
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
