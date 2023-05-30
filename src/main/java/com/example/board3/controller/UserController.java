@@ -27,7 +27,7 @@ public class UserController {
         String encodePw = bCryptPasswordEncoder.encode(userPw);
 
         MemberDTO member = MemberDTO.builder()
-                .userId(memberDTO.getUserId())
+                .userEmail(memberDTO.getUserEmail())
                 .userPw(encodePw)
                 .userName(memberDTO.getUserName())
                 .build();
