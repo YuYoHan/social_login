@@ -1,4 +1,4 @@
-package com.example.board2.config;
+package com.example.board3.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
