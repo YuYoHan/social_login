@@ -4,16 +4,17 @@ use board3;
 use board3;
 
 create table user(
-                     userId varchar(300) primary key ,
-                     userPw varchar(300) not null ,
-                     userName varchar(300) not null
+            userId bigint primary key auto_increment ,
+            userEmail varchar(300) unique ,
+            userPw varchar(300),
+            userName varchar(300) not null
 );
 
 create table board(
                       boardNum bigint primary key auto_increment,
                       boardTitle varchar(300) not null ,
                       boardContents varchar(6000) ,
-                      userId varchar(300),
+                      userId bigint,
                       regDate datetime default now(),
                       updateDate datetime default now(),
                       constraint board_id_fk foreign key (userId) references user(userId)
@@ -22,6 +23,7 @@ create table board(
 select * from board;
 select * from user;
 drop table board;
+drop table user;
 
 insert into board (boardTitle, boardContents, userId)
 values	('테스트 제목1', 'apple이 작성한 테스트 내용1', 'apple'),

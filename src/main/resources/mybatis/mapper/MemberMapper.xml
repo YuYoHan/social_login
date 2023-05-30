@@ -5,6 +5,13 @@
 
 <mapper namespace="com.example.board3.mapper.MemberMapper">
     <insert id="join">
-        insert into user values (#{userId}, #{userPw}, #{userName})
+        insert into user(userEmail, userPw, userName) values (#{userEmail}, #{userPw}, #{userName})
     </insert>
+    <!-- resultType : select 된 데이터를 반환할 그릇을 정해주는 것-->
+    <select id="getUser" resultType="com.example.board3.domain.MemberDTO">
+        select * from user where userId = #{userId}
+    </select>
+    <select id="getAllUser" resultType="com.example.board3.domain.MemberDTO">
+        select * from user;
+    </select>
 </mapper>

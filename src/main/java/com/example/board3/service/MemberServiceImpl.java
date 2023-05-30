@@ -5,6 +5,8 @@ import com.example.board3.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService{
@@ -14,5 +16,15 @@ public class MemberServiceImpl implements MemberService{
     @Override
     public boolean join(MemberDTO memberDTO) {
         return memberMapper.join(memberDTO) == 1;
+    }
+
+    @Override
+    public MemberDTO getUser(Long userId) {
+        return memberMapper.getUser(userId);
+    }
+
+    @Override
+    public List<MemberDTO> getAllUser() {
+        return memberMapper.getAllUser();
     }
 }

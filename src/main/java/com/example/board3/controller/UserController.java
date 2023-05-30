@@ -7,10 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -42,6 +41,35 @@ public class UserController {
         }
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getUser(@PathVariable Long userId) {
+        MemberDTO user = memberService.getUser(userId);
+
+        if(user != null) {
+            return ResponseEntity.ok().body(user);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/allUsers")
+    public ResponseEntity<List<MemberDTO>> getAllUser() {
+        List<MemberDTO> allUser = memberService.getAllUser();
+
+        if (allUser != null) {
+            for (MemberDTO m: allUser
+                 ) {
+                log.info(String.valueOf(m.getUserId()));
+                log.info(String.valueOf(m.getUserEmail()));
+                log.info(String.valueOf(m.getUserPw()));
+                log.info(String.valueOf(m.getUserName()));
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(allUser);
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 }
