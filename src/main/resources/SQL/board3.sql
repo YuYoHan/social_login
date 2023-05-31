@@ -7,7 +7,9 @@ create table user(
             userId bigint primary key auto_increment ,
             userEmail varchar(300) unique ,
             userPw varchar(300),
-            userName varchar(300) not null
+            userName varchar(300) not null,
+            provider varchar(1000),
+            providerId varchar(1000)
 );
 
 create table board(

@@ -11,4 +11,6 @@ public interface MemberService {
     MemberDTO getUser(Long userId);
     // 모든 회원 검색
     List<MemberDTO> getAllUser();
+
+    MemberDTO findByName(String userName);
 }

@@ -27,4 +27,9 @@ public class MemberServiceImpl implements MemberService{
     public List<MemberDTO> getAllUser() {
         return memberMapper.getAllUser();
     }
+
+    @Override
+    public MemberDTO findByName(String userName) {
+        return memberMapper.findByName(userName);
+    }
 }

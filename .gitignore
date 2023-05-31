@@ -33,3 +33,6 @@ build/
 .vscode/
 
 .idea/workspace.xml
+
+src/main/resources/application-oauth.properties
+src/main/resources/application-jwt.properties

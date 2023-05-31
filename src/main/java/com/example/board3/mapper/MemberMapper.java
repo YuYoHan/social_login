@@ -14,4 +14,6 @@ public interface MemberMapper {
     // 모든 유저 검색
     List<MemberDTO> getAllUser();
 
+    MemberDTO findByName(String userName);
+
 }
