@@ -32,4 +32,24 @@ public class MemberServiceImpl implements MemberService{
     public MemberDTO findByName(String userName) {
         return memberMapper.findByName(userName);
     }
+
+    @Override
+    public MemberDTO login(String userEmail, String userPw) {
+        return memberMapper.login(userEmail, userPw);
+    }
+
+    @Override
+    public void update(MemberDTO memberDTO) {
+        memberMapper.update(memberDTO);
+    }
+
+    @Override
+    public void remove(Long userId) {
+        memberMapper.delete(userId);
+    }
+
+    @Override
+    public int emailCheck(String userEmail) {
+        return memberMapper.emailCheck(userEmail);
+    }
 }

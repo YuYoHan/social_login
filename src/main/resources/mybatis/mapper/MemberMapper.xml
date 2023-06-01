@@ -18,4 +18,19 @@
     <select id="findByName" resultType="com.example.board3.domain.MemberDTO">
         select * from user where userName = #{userName}
     </select>
+    <select id="login" resultType="com.example.board3.domain.MemberDTO">
+        select * from user where userEmail = #{userEmail} and userPw = #{userPw}
+    </select>
+    <update id="update" parameterType="com.example.board3.domain.MemberDTO">
+        update user set
+                        userPw = #{userPw},
+                        userName = #{userName}
+        where userId = #{userId}
+    </update>
+    <delete id="delete" parameterType="Long">
+        delete from user where userId=#{userId}
+    </delete>
+    <select id="emailCheck" parameterType="String" resultType="int">
+        select count(userEmail) from user where userEmail = #{userEmail}
+    </select>
 </mapper>

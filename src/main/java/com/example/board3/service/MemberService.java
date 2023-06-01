@@ -13,4 +13,12 @@ public interface MemberService {
     List<MemberDTO> getAllUser();
 
     MemberDTO findByName(String userName);
+
+    MemberDTO login(String userEmail, String userPw);
+
+    void update(MemberDTO memberDTO);
+
+    void remove(Long userId);
+
+    int emailCheck(String userEmail);
 }

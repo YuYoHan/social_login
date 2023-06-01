@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
@@ -70,6 +71,51 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK).body(allUser);
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/loginUser")
+    public ResponseEntity<?> login(@RequestBody MemberDTO memberDTO, HttpSession httpSession) {
+        MemberDTO login = memberService.login(memberDTO.getUserEmail(), memberDTO.getUserPw());
+
+        if(login != null) {
+            httpSession.setAttribute("userId" , login.getUserEmail());
+
+            String userId = (String) httpSession.getAttribute("userId");
+
+            log.info("userId : " + userId);
+
+            ResponseEntity.ok().body(userId);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<?> update(@PathVariable Long userId, @RequestBody MemberDTO memberDTO) {
+        Long checkId = memberDTO.getUserId();
+
+        if(checkId == userId) {
+            memberService.update(memberDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(memberDTO);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> delete(@PathVariable Long userId) {
+        memberService.remove(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/email-check/{userEmail}")
+    public int emailCheck(@PathVariable String userEmail) {
+        int emailCheck = memberService.emailCheck(userEmail);
+
+        if(emailCheck != 0) {
+            throw new IllegalStateException("이미 가입된 회원입니다.");
+        } else {
+            return 0;
         }
     }
 }
