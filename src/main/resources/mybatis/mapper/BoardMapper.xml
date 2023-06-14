@@ -4,31 +4,58 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.board3.mapper.BoardMapper">
-    <select id="getList" resultType="com.example.board3.domain.BoardDTO">
-        <![CDATA[
-            select * from board where boardNum > 0
-        ]]>
-    </select>
-
+    <!--게시글 작성-->
     <insert id="insert">
-        insert into board (boardTitle, boardContents, userId)
-            values (#{boardTitle}, #{boardContents}, #{userId})
+        insert into board (boardTitle, hashTag, boardContents, userId, userEmail, regDate)
+        values (#{boardTitle},#{hashTag}, #{boardContents}, #{userId}, #{userEmail}, now())
     </insert>
 
-    <select id="read" resultType="com.example.board3.domain.BoardDTO">
-        select * from board where boardNum = #{boardNum}
+    <!-- 전체 조회 -->
+    <select id="getList" resultType="com.example.board3.domain.BoardDTO">
+        select * from board order by boardNum desc limit #{startRow}, #{amount}
     </select>
 
-    <delete id="delete" >
+    <!-- 게시글 상세 정보 -->
+    <select id="read"  parameterType="Long" resultType="com.example.board3.domain.BoardDTO">
+        select boardNum, userEmail, boardTitle, hashTag, boardContents, regDate
+        from board3.board where boardNum = #{boardNum}
+    </select>
+
+    <!-- 게시글 삭제 -->
+    <delete id="delete" parameterType="Long" >
         delete from board where boardNum =#{boardNum}
     </delete>
 
-    <update id="update">
+    <!-- 게시글 수정 -->
+    <update id="update" parameterType="com.example.board3.domain.BoardDTO">
         update board
             set boardTitle = #{boardTitle},
                 boardContents = #{boardContents},
-                userId = #{userId},
+                hashTag = #{hashTag},
+                userEmail = #{userEmail},
                 updateDate = now()
                     where boardNum = #{boardNum}
     </update>
+
+    <!-- 게시글 토탈을 구하기 위해-->
+    <select id="getBoardCount" resultType="int" parameterType="com.example.board3.domain.BoardDTO">
+        select count(*) from board;
+    </select>
+
+    <select id="getLastBoardNum" resultType="Long">
+        select max(boardNum) from board3.board;
+    </select>
+
+    <insert id="insertBoardImage">
+        insert into board3.boardimg(boardNum, boardImg)
+            values
+                <foreach collection="boardImages" item="boardImage" separator=",">
+                    (#{boardNum}, #{boardImage})
+                </foreach>
+    </insert>
+
+    <delete id="deleteBoardImage" parameterType="Long">
+        delete from boardImg where boardNum = #{boardNum}
+    </delete>
+
 </mapper>

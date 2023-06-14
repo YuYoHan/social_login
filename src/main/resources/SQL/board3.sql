@@ -17,9 +17,25 @@ create table board(
                       boardTitle varchar(300) not null ,
                       boardContents varchar(6000) ,
                       userId bigint,
+                      userEmail varchar(300) not null,
+                      hashTag varchar(300),
                       regDate datetime default now(),
                       updateDate datetime default now(),
                       constraint board_id_fk foreign key (userId) references user(userId)
+);
+
+create table boardImg(
+                         boardImgNum bigint primary key auto_increment,
+                         boardImg varchar(3000),
+                         boardNum bigint, foreign key pk_boardNum(boardNum) references board(boardNum)
+);
+
+create table comment(
+                        commentNum bigint primary key auto_increment,
+                        comment varchar(3000),
+                        userId bigint, foreign key pk_userId3(userId) references user(userId),
+                        boardNum bigint, foreign key pk_boardNum(boardNum) references board(boardNum),
+                        commentTime timestamp not null default current_timestamp on update current_timestamp
 );
 
 select * from board;
