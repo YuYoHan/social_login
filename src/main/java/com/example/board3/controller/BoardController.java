@@ -3,7 +3,6 @@ package com.example.board3.controller;
 import com.example.board3.domain.BoardDTO;
 import com.example.board3.domain.Criteria;
 import com.example.board3.domain.PageDTO;
-import com.example.board3.service.BoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

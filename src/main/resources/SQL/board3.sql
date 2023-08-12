@@ -1,8 +1,6 @@
 create database board3;
 use board3;
 
-use board3;
-
 create table user(
             userId bigint primary key auto_increment ,
             userEmail varchar(300) unique ,
@@ -42,13 +40,18 @@ select * from board;
 select * from user;
 drop table board;
 drop table user;
+drop table comment;
+drop table boardimg;
 
-insert into board (boardTitle, boardContents)
-values	('테스트 제목', 'apple이 작성한 테스트 내용'),
-          ('테스트 제목', 'banana이 작성한 테스트 내용'),
-          ('테스트 제목', 'cheery이 작성한 테스트 내용'),
-          ('테스트 제목', 'durian이 작성한 테스트 내용');
+insert into board (boardTitle, boardContents, userEmail, hashTag, regDate)
+values	('테스트 제목', 'apple이 작성한 테스트 내용', 'zxzz1@naver.com', 'test', now()),
+          ('테스트 제목', 'banana이 작성한 테스트 내용', 'zxzz1@naver.com', 'test', now()),
+          ('테스트 제목', 'cheery이 작성한 테스트 내용', 'zxzz1@naver.com', 'test', now()),
+          ('테스트 제목', 'durian이 작성한 테스트 내용', 'zxzz1@naver.com', 'test', now());
 # 가상의 게시글 늘리기 위한 것
-insert into board (boardTitle, boardContents) (select boardTitle, boardContents from board);
+insert into board (boardTitle, boardContents, userEmail, hashTag, regDate)
+    (select boardTitle, boardContents, userEmail, hashTag, regDate from board);
+
+
 
 

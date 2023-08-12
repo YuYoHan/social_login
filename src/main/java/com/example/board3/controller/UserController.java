@@ -1,7 +1,6 @@
 package com.example.board3.controller;
 
 import com.example.board3.domain.MemberDTO;
-import com.example.board3.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -88,6 +87,10 @@ public class UserController {
     @PostMapping("/loginUser")
     public ResponseEntity<?> login(@RequestBody MemberDTO memberDTO, HttpSession httpSession) {
         MemberDTO login = memberService.login(memberDTO.getUserEmail(), memberDTO.getUserPw());
+        log.info("memberDTO.email : " + memberDTO.getUserEmail());
+        log.info("memberDTO.pw : " + memberDTO.getUserPw());
+        log.info("login : " + login);
+
 
         if(login != null) {
             httpSession.setAttribute("userId" , login.getUserEmail());
@@ -96,9 +99,9 @@ public class UserController {
 
             log.info("userId : " + userId);
 
-            ResponseEntity.ok().body(userId);
+            return ResponseEntity.ok().body(userId);
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
     @Tag(name = "user")
