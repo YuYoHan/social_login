@@ -1,6 +1,6 @@
 package com.example.board3.service;
 
-import com.example.board3.domain.MemberDTO;
+import com.example.board3.domain.member.MemberDTO;
 
 import java.util.List;
 

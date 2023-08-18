@@ -1,6 +1,6 @@
 package com.example.board3.mapper;
 
-import com.example.board3.domain.MemberDTO;
+import com.example.board3.domain.member.MemberDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

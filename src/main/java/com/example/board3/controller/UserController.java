@@ -1,6 +1,6 @@
 package com.example.board3.controller;
 
-import com.example.board3.domain.MemberDTO;
+import com.example.board3.domain.member.MemberDTO;
 import com.example.board3.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
