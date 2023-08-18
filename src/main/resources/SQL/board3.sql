@@ -1,6 +1,7 @@
 create database board3;
 use board3;
 
+<<<<<<< HEAD
 create table user(
             userId bigint primary key auto_increment ,
             userEmail varchar(300) unique ,
@@ -21,6 +22,10 @@ create table board(
                       updateDate datetime default now(),
                       constraint board_id_fk foreign key (userId) references user(userId)
 );
+=======
+use board3;
+
+>>>>>>> feature/join
 
 create table boardImg(
                          boardImgNum bigint primary key auto_increment,
