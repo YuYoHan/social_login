@@ -2,16 +2,21 @@ package com.example.board3.controller;
 
 import com.example.board3.domain.member.MemberDTO;
 import com.example.board3.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@Tag(name = "member", description = "유저 관련 기능")
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/v1/api/users")
@@ -20,56 +25,25 @@ public class UserController {
     private final MemberService memberService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    // 회원가입
     @PostMapping("/")
-    public ResponseEntity<String> join(@RequestBody MemberDTO memberDTO) {
+    @Tag(name = "member")
+    @Operation(summary = "회원가입", description = "회원가입 API")
+    public ResponseEntity<?> join(@Validated @RequestBody MemberDTO memberDTO,
+                                       BindingResult result) throws Exception {
 
-        String userPw = memberDTO.getUserPw();
-        String encodePw = bCryptPasswordEncoder.encode(userPw);
-
-        MemberDTO member = MemberDTO.builder()
-                .userEmail(memberDTO.getUserEmail())
-                .userPw(encodePw)
-                .userName(memberDTO.getUserName())
-                .build();
-
-        if (member != null) {
-            log.info("member = " + member);
-            if(memberService.join(member)) {
-                return ResponseEntity.status(HttpStatus.OK).body("회원가입에 성공했습니다.");
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        if(result.hasErrors()) {
+            log.info("error : " + result.hasErrors());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getClass().getSimpleName());
         }
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-    }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<?> getUser(@PathVariable Long userId) {
-        MemberDTO user = memberService.getUser(userId);
-
-        if(user != null) {
+        try {
+            ResponseEntity<?> user = memberService.createUser(memberDTO);
             return ResponseEntity.ok().body(user);
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.info("error : " + e.getMessage());
+            throw new Exception("에러가 발생했습니다.");
         }
     }
-
-    @GetMapping("/allUsers")
-    public ResponseEntity<List<MemberDTO>> getAllUser() {
-        List<MemberDTO> allUser = memberService.getAllUser();
-
-        if (allUser != null) {
-            for (MemberDTO m: allUser
-                 ) {
-                log.info(String.valueOf(m.getUserId()));
-                log.info(String.valueOf(m.getUserEmail()));
-                log.info(String.valueOf(m.getUserPw()));
-                log.info(String.valueOf(m.getUserName()));
-            }
-            return ResponseEntity.status(HttpStatus.OK).body(allUser);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+    
 }

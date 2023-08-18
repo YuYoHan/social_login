@@ -3,22 +3,6 @@ use board3;
 
 use board3;
 
-create table user(
-            userId bigint primary key auto_increment ,
-            userEmail varchar(300) unique ,
-            userPw varchar(300),
-            userName varchar(300) not null
-);
-
-create table board(
-                      boardNum bigint primary key auto_increment,
-                      boardTitle varchar(300) not null ,
-                      boardContents varchar(6000) ,
-                      userId bigint,
-                      regDate datetime default now(),
-                      updateDate datetime default now(),
-                      constraint board_id_fk foreign key (userId) references user(userId)
-);
 
 select * from board;
 select * from user;

@@ -7,9 +7,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 // 시큐리티 활성화
@@ -33,23 +37,30 @@ public class SecurityConfig {
                 // 세션을 사용하지 않고 JWT 토큰을 활용하여 진행하고
                 // REST API를 만드는 작업이기 때문에 이 처리를 합니다.
                 .csrf().disable()
+                .formLogin().disable()
+                .logout().disable()
+                .httpBasic().disable()
                 // 스프링 시큐리티에서 세션을 관리하지 않겠다는 뜻입니다.
                 // 서버에서 관리되는 세션없이 클라이언트에서 요청하는 헤더에 token을
                 // 담아보낸다면 서버에서 토큰을 확인하여 인증하는 방식을 사용할 것이므로
                 // 서버에서 관리되어야할 세션이 필요없습니다.
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-                .and()
-                // 인증철차에 대한 설정
+        http
                 .authorizeRequests()
-                // /v1/api/users에 대해 로그인을 요구함
-                .antMatchers("/v1/api/users").authenticated()
-                .antMatchers("/v1/api/boards").authenticated()
-                // 나머지 요청에 대해서는 로그인을 요구하지 않음
-                .anyRequest().permitAll()
+                .antMatchers("/api/v1/boards/**")
+                .access("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+                .antMatchers("/api/v1/admin/**")
+                .access("hasRole('ROLE_ADMIN')")
+                .antMatchers("/api/v1/items/**")
+                .access("hasRole('ROLE_ADMIN')")
+                // /success-oauth 엔드포인트에 대해 인증된 사용자만 접근 가능하도록 설정
+//                  .antMatchers("/success-oauth").authenticated()
+                .antMatchers("/swagger-resources/**").permitAll()
+                .antMatchers("/swagger-ui/**").permitAll()
+                .antMatchers("/api/v1/users/**").permitAll();
 
-                .and()
-                .formLogin().disable();
+
 
         return http.build();
     }
@@ -61,6 +72,15 @@ public class SecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return
                 (web) -> web.ignoring().antMatchers("/images/**", "/js/**");
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        String idForEncode = "bcrypt";
+        Map<String, PasswordEncoder> encoders = new HashMap<>();
+        encoders.put(idForEncode, new BCryptPasswordEncoder());
+
+        return new DelegatingPasswordEncoder(idForEncode, encoders);
     }
 
 
