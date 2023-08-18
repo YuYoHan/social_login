@@ -1,14 +1,12 @@
 package com.example.board3.entity.member;
 
+import com.example.board3.domain.member.Role;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity(name = "members")
 @Getter
@@ -34,18 +32,23 @@ public class MemberEntity {
     @Column(name = "user_addr", nullable = false)
     private AddressEntity address;
 
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @Builder
     public MemberEntity(Long userId,
                         String userName,
                         String userEmail,
                         String userPw,
                         String nickName,
-                        AddressEntity address) {
+                        AddressEntity address,
+                        Role role) {
         this.userId = userId;
         this.userName = userName;
         this.userEmail = userEmail;
         this.userPw = userPw;
         this.nickName = nickName;
         this.address = address;
+        this.role = role;
     }
 }

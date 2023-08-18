@@ -1,18 +1,15 @@
 package com.example.board3.config.auth;
 
-import com.example.board3.domain.MemberDTO;
+import com.example.board3.entity.member.MemberEntity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 @Setter
 @Getter

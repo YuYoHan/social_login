@@ -34,6 +34,10 @@ public class MemberDTO {
     @NotNull(message = "닉네임은 필 수 입력입니다.")
     private String nickName;
 
+    @Schema(description = "유저권한")
+    @NotNull(message = "권한 부여는 필 수 입니다.")
+    private Role role;
+
     @Schema(description = "회원 주소")
     @NotNull(message = "주소는 필 수 입력입니다.")
     private AddressDTO addressDTO;
@@ -45,6 +49,7 @@ public class MemberDTO {
                 .userPw(memberEntity.getUserPw())
                 .nickName(memberEntity.getNickName())
                 .userName(memberEntity.getUserName())
+                .role(memberEntity.getRole())
                 .addressDTO(AddressDTO.builder()
                         .userAddr(memberEntity.getAddress().getUserAddr())
                         .userAddrDetail(memberEntity.getAddress().getUserAddrDetails())

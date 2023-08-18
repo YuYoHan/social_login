@@ -1,5 +1,7 @@
 package com.example.board3.config.auth;
 
+import com.example.board3.entity.member.MemberEntity;
+import com.example.board3.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +19,8 @@ public class PrincipalDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null;
+        MemberEntity findEmail = memberRepository.findByUserEmail(username);
+        log.info("user : " + findEmail);
+        return new PrincipalDetails(findEmail);
     }
 }

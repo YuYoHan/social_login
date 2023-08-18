@@ -1,6 +1,5 @@
 package com.example.board3.mapper;
 
-import com.example.board3.domain.MemberDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
