@@ -1,5 +1,6 @@
 package com.example.board3.domain.member;
 
+import com.example.board3.entity.member.MemberEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -36,4 +37,21 @@ public class MemberDTO {
     @Schema(description = "회원 주소")
     @NotNull(message = "주소는 필 수 입력입니다.")
     private AddressDTO addressDTO;
+
+    public static  MemberDTO toMemberDTO(MemberEntity memberEntity) {
+        MemberDTO memberDTO = MemberDTO.builder()
+                .userId(memberEntity.getUserId())
+                .userEmail(memberEntity.getUserEmail())
+                .userPw(memberEntity.getUserPw())
+                .nickName(memberEntity.getNickName())
+                .userName(memberEntity.getUserName())
+                .addressDTO(AddressDTO.builder()
+                        .userAddr(memberEntity.getAddress().getUserAddr())
+                        .userAddrDetail(memberEntity.getAddress().getUserAddrDetails())
+                        .userAddrEtc(memberEntity.getAddress().getUserAddrEtc())
+                        .build())
+                .build();
+
+        return memberDTO;
+    }
 }
