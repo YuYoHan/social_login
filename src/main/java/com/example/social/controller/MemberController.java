@@ -1,6 +1,7 @@
 package com.example.social.controller;
 
 import com.example.social.domain.MemberDTO;
+import com.example.social.domain.TokenDTO;
 import com.example.social.service.MemberService;
 import com.example.social.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
@@ -104,6 +105,27 @@ public class MemberController {
     @PostMapping("/api/v1/users/{userEmail}")
     public String emailCheck(@PathVariable String userEmail) {
         log.info("userEmail : " + userEmail);
-        memberService.emailCheck(userEmail);
+        return memberService.emailCheck(userEmail);
+    }
+
+    // refresh로 access 토큰 재발급
+    // @RequsetHeader"Authorization")은 Authorization 헤더에서 값을 추출합니다.
+    // 일반적으로 리프레시 토큰은 Authorization 헤더의 값으로 전달되며,
+    // Bearer <token> 형식을 따르는 경우가 일반적입니다. 여기서 <token> 부분이 실제 리프레시 토큰입니다
+    // 로 추출하면 다음과 같이 문자열로 나온다.
+    // Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    @PostMapping("/api/v1/users/refresh")
+    public ResponseEntity<?> createAccessToken(@RequestHeader("Authorization") String token) throws Exception {
+
+        try {
+            if (token != null) {
+                ResponseEntity<TokenDTO> accessToken = refreshTokenService.createAccessToken(token);
+                return ResponseEntity.ok().body(accessToken);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
