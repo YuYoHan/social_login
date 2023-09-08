@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity(name = "token")
 @Getter
@@ -14,24 +15,25 @@ import javax.persistence.*;
 @NoArgsConstructor
 @ToString
 public class TokenEntity {
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "token_id")
     private Long id;
     private String grantType;
     private String accessToken;
-    private String accessTokenTime;
+    private Date accessTokenTime;
     private String refreshToken;
-    private String refreshTokenTime;
+    private Date refreshTokenTime;
     private String userEmail;
 
     @Builder
     public TokenEntity(Long id,
-                    String grantType,
-                    String accessToken,
-                    String accessTokenTime,
-                    String refreshToken,
-                    String refreshTokenTime,
-                    String userEmail) {
+                       String grantType,
+                       String accessToken,
+                       Date accessTokenTime,
+                       String refreshToken,
+                       Date refreshTokenTime,
+                       String userEmail) {
         this.id = id;
         this.grantType = grantType;
         this.accessToken = accessToken;
