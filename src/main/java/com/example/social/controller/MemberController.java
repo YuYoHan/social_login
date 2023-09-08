@@ -1,0 +1,109 @@
+package com.example.social.controller;
+
+import com.example.social.domain.MemberDTO;
+import com.example.social.service.MemberService;
+import com.example.social.service.RefreshTokenService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@RestController
+@Log4j2
+@RequiredArgsConstructor
+public class MemberController {
+    private final MemberService memberService;
+    private final RefreshTokenService refreshTokenService;
+
+    // 회원가입
+    @PostMapping("/api/v1/users/")
+    public ResponseEntity<?> signUp(@Validated @RequestBody MemberDTO member,
+                                    BindingResult result) throws Exception {
+        if(result.hasErrors()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getClass().getSimpleName());
+        }
+
+        try {
+            ResponseEntity<?> responseEntity = memberService.signUp(member);
+            return ResponseEntity.ok().body(responseEntity);
+        }catch (Exception e) {
+            throw new Exception();
+        }
+     }
+
+     // 회원 조회
+    @GetMapping("/api/v1/users/{userId}")
+    public ResponseEntity<MemberDTO> search(@PathVariable Long userId) throws Exception {
+        try {
+            ResponseEntity<MemberDTO> search = memberService.search(userId);
+            return search;
+        } catch (Exception e) {
+            throw new EntityNotFoundException("회원이 없습니다.");
+        }
+    }
+
+    // 로그인
+    @PostMapping("/api/v1/users/login")
+    public ResponseEntity<?> login(@RequestBody MemberDTO member) throws Exception {
+        log.info("member : " + member);
+        try {
+            String userEmail = member.getUserEmail();
+            String userPw = member.getUserPw();
+            return memberService.login(userEmail, userPw);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    // 로그아웃
+    @GetMapping("/logout")
+    public String logOut(HttpServletRequest request,
+                         HttpServletResponse response) {
+        new SecurityContextLogoutHandler().logout(
+                request,
+                response,
+                SecurityContextHolder.getContext().getAuthentication()
+                );
+        return "로그아웃 했습니다.";
+    }
+
+    // 회원정보 수정
+    @PutMapping("/api/v1/users/")
+    public ResponseEntity<?> update(@RequestBody MemberDTO member,
+                                    @AuthenticationPrincipal UserDetails userDetails) throws Exception {
+        try {
+            // 검증과 유효성이 끝난 토큰을 SecurityContext에 저장하면
+            // @AuthenticationPrincipal UserDetails userDetails 으로 받아오고 사용
+            // zxzz45@naver.com 이런식으로 된다.
+            String userEmail = userDetails.getUsername();
+            return memberService.update(member, userEmail);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("잘못된 요청");
+        }
+    }
+
+    // 회원탈퇴
+    @DeleteMapping("/api/v1/users/{userId}")
+    public String remove(@PathVariable Long userId) {
+        String remove = memberService.remove(userId);
+        return remove;
+    }
+
+    // 중복 체크
+    @PostMapping("/api/v1/users/{userEmail}")
+    public String emailCheck(@PathVariable String userEmail) {
+        log.info("userEmail : " + userEmail);
+        memberService.emailCheck(userEmail);
+    }
+}
