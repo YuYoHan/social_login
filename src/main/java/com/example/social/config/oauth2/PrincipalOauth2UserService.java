@@ -16,7 +16,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import java.util.Map;
-import java.util.UUID;
 
 // 소셜 로그인하면 사용자 정보를 가지고 온다.
 // 가져온 정보와 PrincipalDetails 객체를 생성합니다.
@@ -98,7 +97,6 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                     .build();
 
             log.info("member : " + member);
-
             memberRepository.save(member);
         }else {
             log.info("로그인을 이미 한적이 있습니다. 당신은 자동회원가입이 되어 있습니다.");
