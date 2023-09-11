@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -80,6 +81,8 @@ public class MemberController {
     }
 
     // 회원정보 수정
+    // 일반 로그인시 발급받은 accessToken에서 정보를 가져올 때는
+    // @AuthenticationPrincipal UserDetails userDetails이거를 사용한다.
     @PutMapping("/api/v1/users/")
     public ResponseEntity<?> update(@RequestBody MemberDTO member,
                                     @AuthenticationPrincipal UserDetails userDetails) throws Exception {
@@ -126,6 +129,21 @@ public class MemberController {
             }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // 소셜 로그인
+    // 소셜 로그인시 발급받은 accessToken에서 정보를 가져올 때는
+    // @AuthenticationPrincipal OAuth2User oAuth2User이거를 사용한다.
+    @GetMapping("/success-oauth")
+    public ResponseEntity<?> getOAuth2UserInfo(@AuthenticationPrincipal OAuth2User oAuth2User) throws Exception{
+        try {
+            String email = oAuth2User.getAttribute("email");
+            log.info("email : " + email);
+            ResponseEntity<?> tokenForOAuth2 = memberService.createTokenForOAuth2(email);
+            return ResponseEntity.ok().body(tokenForOAuth2);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

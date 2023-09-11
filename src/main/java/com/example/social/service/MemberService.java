@@ -156,19 +156,6 @@ public class MemberService {
         return ResponseEntity.notFound().build();
     }
 
-
-    private List<GrantedAuthority> getAuthoritiesForUser(MemberEntity findUser) {
-        // 예시: 데이터베이스에서 사용자의 권한 정보를 조회하는 로직을 구현
-        // member 객체를 이용하여 데이터베이스에서 사용자의 권한 정보를 조회하는 예시로 대체합니다.
-        Role role = findUser.getRole();
-
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
-        log.info("role in MemberService : " + role.name());
-        log.info("authorities in MemberService : " + authorities);
-        return authorities;
-    }
-
     // 회원 정보 수정
     public ResponseEntity<?> update(MemberDTO member, String userEmail) {
         MemberEntity findUser = memberRepository.findByUserEmail(userEmail);
@@ -206,5 +193,63 @@ public class MemberService {
         } else {
             return "사용가능한 이메일입니다.";
         }
+    }
+
+    // 소셜 로그인 JWT 발급
+    public ResponseEntity<?> createTokenForOAuth2(String email) {
+        MemberEntity findUser = memberRepository.findByUserEmail(email);
+
+        // 소셜 로그인한 유저가 있는지 체크
+        if(findUser != null) {
+            List<GrantedAuthority> authoritiesForUser = getAuthoritiesForUser(findUser);
+            TokenDTO tokenForOAuth2 = jwtProvider.createTokenForOAuth2(email, authoritiesForUser);
+            TokenEntity findToken = tokenRepository.findByUserEmail(tokenForOAuth2.getUserEmail());
+
+            // 해당 유저가 발급받은 토큰이 DB에 저장되어 있는지 확인
+            // 해당 토큰이 비어있지 않으면 업데이트 해준다.
+            if(findToken != null) {
+                tokenForOAuth2 = TokenDTO.builder()
+                        .id(findToken.getId())
+                        .grantType(tokenForOAuth2.getGrantType())
+                        .accessToken(tokenForOAuth2.getAccessToken())
+                        .accessTokenTime(tokenForOAuth2.getAccessTokenTime())
+                        .refreshToken(tokenForOAuth2.getRefreshToken())
+                        .refreshTokenTime(tokenForOAuth2.getRefreshTokenTime())
+                        .userEmail(tokenForOAuth2.getUserEmail())
+                        .build();
+                TokenEntity tokenEntity = TokenEntity.toTokenEntity(tokenForOAuth2);
+                tokenRepository.save(tokenEntity);
+            } else {
+                // 해당 유저가 발급받은 토큰이 없으면 토큰을 발급해준다.
+                // 위 코드와 차이점은 id의 유무다.
+                // 이미 존재할 때는 id를 사용해서 업데이트 해주지만
+                // 처음 넣어줄 때는 id가 필요없다.
+                tokenForOAuth2 = TokenDTO.builder()
+                        .grantType(tokenForOAuth2.getGrantType())
+                        .accessToken(tokenForOAuth2.getAccessToken())
+                        .accessTokenTime(tokenForOAuth2.getAccessTokenTime())
+                        .refreshToken(tokenForOAuth2.getRefreshToken())
+                        .refreshTokenTime(tokenForOAuth2.getRefreshTokenTime())
+                        .userEmail(tokenForOAuth2.getUserEmail())
+                        .build();
+                TokenEntity tokenEntity = TokenEntity.toTokenEntity(tokenForOAuth2);
+                tokenRepository.save(tokenEntity);
+            }
+            return ResponseEntity.ok().body(tokenForOAuth2);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 유저가 존재하지 않습니다.");
+        }
+    }
+
+    private List<GrantedAuthority> getAuthoritiesForUser(MemberEntity findUser) {
+        // 예시: 데이터베이스에서 사용자의 권한 정보를 조회하는 로직을 구현
+        // member 객체를 이용하여 데이터베이스에서 사용자의 권한 정보를 조회하는 예시로 대체합니다.
+        Role role = findUser.getRole();
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        log.info("role in MemberService : " + role.name());
+        log.info("authorities in MemberService : " + authorities);
+        return authorities;
     }
 }

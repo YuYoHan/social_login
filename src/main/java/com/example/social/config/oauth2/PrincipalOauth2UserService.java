@@ -32,6 +32,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         log.info("clientRegistration in PrincipalOauth2UserService : " + userRequest.getClientRegistration());
         log.info("accessToken in PrincipalOauth2UserService : " + userRequest.getAccessToken().getTokenValue());
 
+        // OAuth2 유저 정보를 가져옵니다.
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
         // 구글 로그인 버튼 클릭 →구글 로그인 창 → 로그인 완료 → code 를 리턴(OAuth-Client 라이브러리) → AccessToken 요청
@@ -41,6 +42,8 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         // 회원가입 강제 진행
         OAuth2UserInfo oAuth2UserInfo = null;
 
+        // 소셜 정보를 가지고 옵니다.
+        // OAuth2 서비스 아이디
         if(userRequest.getClientRegistration().getRegistrationId().equals("google")) {
             log.info("구글 로그인 요청");
             oAuth2UserInfo = new GoogleUserInfo(oAuth2User.getAttributes());
@@ -100,6 +103,18 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
             memberRepository.save(member);
         }else {
             log.info("로그인을 이미 한적이 있습니다. 당신은 자동회원가입이 되어 있습니다.");
+            // 이미 존재하는 회원이면 업데이트를 해줍니다.
+            member = MemberEntity.builder()
+                    .userId(member.getUserId())
+                    .userEmail(email)
+                    .role(role)
+                    .userName(name)
+                    .provider(provider)
+                    .providerId(providerId)
+                    .userPw(password)
+                    .nickName(nickName)
+                    .build();
+            memberRepository.save(member);
         }
         // attributes가 있는 생성자를 사용하여 PrincipalDetails 객체 생성
         // 소셜 로그인인 경우에는 attributes도 함께 가지고 있는 PrincipalDetails 객체를 생성하게 됩니다.
