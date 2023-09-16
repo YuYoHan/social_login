@@ -27,8 +27,8 @@ dependencies {
     // 네이버 OAuth2 클라이언트 지원
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.security:spring-security-oauth2-resource-server'
-    implementation group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: '2.6.8'
-
+    implementation 'org.springframework.security:spring-security-oauth2-core'
+    implementation 'org.springframework.security:spring-security-oauth2-client'
     // security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     // jwt

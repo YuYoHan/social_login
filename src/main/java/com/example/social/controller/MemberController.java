@@ -137,14 +137,12 @@ public class MemberController {
     // 소셜 로그인시 발급받은 accessToken에서 정보를 가져올 때는
     // @AuthenticationPrincipal OAuth2User oAuth2User이거를 사용한다.
     @GetMapping("/success-oauth")
-    public ResponseEntity<?> getOAuth2UserInfo(OAuth2AuthenticationToken auth2AuthenticationToken)
+    public ResponseEntity<?> getOAuth2UserInfo(@AuthenticationPrincipal OAuth2User oAuth2User)
             throws Exception{
         try {
-            OAuth2User user = auth2AuthenticationToken.getPrincipal();
-            log.info("principal : " + user);
-            String userName = user.getAttribute("name");
+            String userName = oAuth2User.getAttribute("name");
             log.info("userName : " + userName);
-            String email = user.getAttribute("email");
+            String email = oAuth2User.getAttribute("email");
 
             log.info("email : " + email);
             ResponseEntity<?> tokenForOAuth2 = memberService.createTokenForOAuth2(email);
