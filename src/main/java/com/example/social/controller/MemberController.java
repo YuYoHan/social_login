@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.validation.BindingResult;
@@ -136,9 +137,15 @@ public class MemberController {
     // 소셜 로그인시 발급받은 accessToken에서 정보를 가져올 때는
     // @AuthenticationPrincipal OAuth2User oAuth2User이거를 사용한다.
     @GetMapping("/success-oauth")
-    public ResponseEntity<?> getOAuth2UserInfo(@AuthenticationPrincipal OAuth2User oAuth2User) throws Exception{
+    public ResponseEntity<?> getOAuth2UserInfo(OAuth2AuthenticationToken auth2AuthenticationToken)
+            throws Exception{
         try {
-            String email = oAuth2User.getAttribute("email");
+            OAuth2User user = auth2AuthenticationToken.getPrincipal();
+            log.info("principal : " + user);
+            String userName = user.getAttribute("name");
+            log.info("userName : " + userName);
+            String email = user.getAttribute("email");
+
             log.info("email : " + email);
             ResponseEntity<?> tokenForOAuth2 = memberService.createTokenForOAuth2(email);
             return ResponseEntity.ok().body(tokenForOAuth2);

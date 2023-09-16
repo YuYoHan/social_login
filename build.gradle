@@ -24,7 +24,11 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     // oauth2
+    // 네이버 OAuth2 클라이언트 지원
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+    implementation group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: '2.6.8'
+
     // security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     // jwt
@@ -40,6 +44,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     // 유효성 검사 라이브러리
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }
 
 tasks.named('test') {

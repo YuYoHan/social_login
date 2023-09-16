@@ -20,6 +20,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 // JWT 방식은 세션과 다르게 Filter 하나를 추가해야 합니다.
 // 이제 사용자가 로그인을 했을 때, Request 에 가지고 있는 Token 을 해석해주는 로직이 필요합니다.
@@ -49,6 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
         // request header에서 JWT를 추출
@@ -100,6 +103,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // 토큰이 "Bearer "로 시작하거나 "Bearer "로 안온 것도 토큰 반환
     private String resovleToken(HttpServletRequest httpServletRequest) {
         String token = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
+        log.info("token : " + token);
 
         if(StringUtils.hasText(token) && token.startsWith("Bearer ")) {
             return token.substring(7);
@@ -109,4 +113,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return null;
         }
     }
+
 }

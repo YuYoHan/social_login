@@ -2,6 +2,7 @@ spring:
   profiles:
     include:
       - jwt
+      - oauth
 
   devtools:
     livereload:
@@ -30,6 +31,11 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
+  thymeleaf:
+    mode: HTML5
+    suffix: .html
+    prefix: classpath:templates/
 
 logging:
   level:
