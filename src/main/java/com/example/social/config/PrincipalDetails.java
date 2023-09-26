@@ -1,4 +1,4 @@
-package com.example.social.config.auth;
+package com.example.social.config;
 
 import com.example.social.entity.MemberEntity;
 import lombok.Getter;
@@ -76,13 +76,13 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     // 사용자 패스워드를 반환
     @Override
     public String getPassword() {
-        return member.getUserPw();
+        return member.getPassword();
     }
 
     // 사용자 이름 반환
     @Override
     public String getUsername() {
-        return member.getUserEmail();
+        return member.getEmail();
     }
 
     // 계정 만료 여부 반환

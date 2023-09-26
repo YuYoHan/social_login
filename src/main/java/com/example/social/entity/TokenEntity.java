@@ -7,40 +7,29 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity(name = "token")
-@Getter
 @Table
-@NoArgsConstructor
 @ToString
+@Getter
+@NoArgsConstructor
 public class TokenEntity {
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue
     @Column(name = "token_id")
     private Long id;
+
     private String grantType;
     private String accessToken;
-    private Date accessTokenTime;
     private String refreshToken;
-    private Date refreshTokenTime;
-    private String userEmail;
+    private String memberEmail;
 
     @Builder
-    public TokenEntity(Long id,
-                       String grantType,
-                       String accessToken,
-                       Date accessTokenTime,
-                       String refreshToken,
-                       Date refreshTokenTime,
-                       String userEmail) {
+    public TokenEntity(Long id, String grantType, String accessToken, String refreshToken,String memberEmail) {
         this.id = id;
         this.grantType = grantType;
         this.accessToken = accessToken;
-        this.accessTokenTime = accessTokenTime;
         this.refreshToken = refreshToken;
-        this.refreshTokenTime = refreshTokenTime;
-        this.userEmail = userEmail;
+        this.memberEmail = memberEmail;
     }
 
     public static TokenEntity toTokenEntity(TokenDTO token) {
@@ -48,10 +37,8 @@ public class TokenEntity {
                 .id(token.getId())
                 .grantType(token.getGrantType())
                 .accessToken(token.getAccessToken())
-                .accessTokenTime(token.getAccessTokenTime())
                 .refreshToken(token.getRefreshToken())
-                .refreshTokenTime(token.getRefreshTokenTime())
-                .userEmail(token.getUserEmail())
+                .memberEmail(token.getMemberEmail())
                 .build();
     }
 }

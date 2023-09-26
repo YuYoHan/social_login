@@ -1,7 +1,7 @@
-package com.example.social.config.auth;
+package com.example.social.config;
 
 import com.example.social.entity.MemberEntity;
-import com.example.social.repository.MemberRepository;
+import com.example.social.repository.MemberRepositroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,13 +20,15 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PrincipalDetailsService implements UserDetailsService {
 
-    private final MemberRepository memberRepository;
+    private final MemberRepositroy memberRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // DB에서 조회
-        MemberEntity member = memberRepository.findByUserEmail(username);
+        MemberEntity member = memberRepository.findByEmail(username);
         log.info("user in PrincipalDetailsService : " + member);
         return new PrincipalDetails(member);
     }
+
+
 }
