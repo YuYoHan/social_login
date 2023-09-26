@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @RestController
 @Log4j2
@@ -136,19 +138,27 @@ public class MemberController {
     // 소셜 로그인
     // 소셜 로그인시 발급받은 accessToken에서 정보를 가져올 때는
     // @AuthenticationPrincipal OAuth2User oAuth2User이거를 사용한다.
+//    @GetMapping("/success-oauth")
+//    public ResponseEntity<?> getOAuth2UserInfo(@AuthenticationPrincipal OAuth2User oAuth2User)
+//            throws Exception{
+//        try {
+//            String userName = oAuth2User.getAttribute("name");
+//            log.info("userName : " + userName);
+//            String email = oAuth2User.getAttribute("email");
+//
+//            log.info("email : " + email);
+//            ResponseEntity<?> tokenForOAuth2 = memberService.createTokenForOAuth2(email);
+//            return ResponseEntity.ok().body(tokenForOAuth2);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
     @GetMapping("/success-oauth")
-    public ResponseEntity<?> getOAuth2UserInfo(@AuthenticationPrincipal OAuth2User oAuth2User)
-            throws Exception{
-        try {
-            String userName = oAuth2User.getAttribute("name");
-            log.info("userName : " + userName);
-            String email = oAuth2User.getAttribute("email");
-
-            log.info("email : " + email);
-            ResponseEntity<?> tokenForOAuth2 = memberService.createTokenForOAuth2(email);
-            return ResponseEntity.ok().body(tokenForOAuth2);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public ResponseEntity<?> oauth2Token(@AuthenticationPrincipal OAuth2User oAuth2User) {
+        log.info("oAuth2User : " + oAuth2User);
+        String name = oAuth2User.getName();
+        log.info("name :" + name);
+        ResponseEntity<?> tokenForOAuth2 = memberService.createTokenForOAuth2(name);
+        return ResponseEntity.ok().body(tokenForOAuth2);
     }
 }

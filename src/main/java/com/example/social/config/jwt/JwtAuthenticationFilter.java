@@ -8,10 +8,16 @@ package com.example.social.config.jwt;
 // UsernamePasswordAuthenticationFilter 이후의 필터는 통과한 것으로 본다는 뜻이다.
 // 쉽게 말해서, Username + Password 를 통한 인증을 Jwt 를 통해 수행한다는 것이다.
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -20,8 +26,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 // JWT 방식은 세션과 다르게 Filter 하나를 추가해야 합니다.
 // 이제 사용자가 로그인을 했을 때, Request 에 가지고 있는 Token 을 해석해주는 로직이 필요합니다.
@@ -40,13 +44,11 @@ import java.util.Map;
 @Log4j2
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     public static final String HEADER_AUTHORIZATION = "Authorization";
     private final JwtProvider jwtProvider;
 
     // doFilter는 토큰을 검증하고
     // 토큰의 인증정보를 SecurityContext에 담아주는 역할을 한다.
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -57,43 +59,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // request header에서 JWT를 추출
         // 요청 헤더에서 JWT 토큰을 추출하는 역할
         String jwt = resovleToken(httpServletRequest);
-
         log.info("jwt in JwtAuthenticationFilter : " + jwt);
 
         // 어떤 경로로 요청을 했는지 보여줌
         String requestURI = httpServletRequest.getRequestURI();
         log.info("uri JwtAuthenticationFilter : " + requestURI);
 
-        if(StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt)) {
-            // 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext에 저장
-            Authentication authentication = null;
+        if (StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt)) {
             try {
-                authentication = jwtProvider.getAuthentication(jwt);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            log.info("authentication in JwtAuthenticationFilter : " + authentication);
+                Authentication authentication = jwtProvider.getAuthentication(jwt);
+                log.info("authentication in JwtAuthenticationFilter : " + authentication);
 
-            // Spring Security의 SecurityContextHolder를 사용하여 현재 인증 정보를 설정합니다.
-            // 이를 통해 현재 사용자가 인증된 상태로 처리됩니다.
-            // 위에서 jwtProvider.getAuthentication(jwt)가 반환이 UsernamePasswordAuthenticationToken로
-            // SecurityContext에 저장이 되는데 SecurityContextHolder.getContext().setAuthentication(authentication);
-            // 처리를 하는 이유는 다음과 같다.
-            /*
-             *   1.  인증 정보 검증: JWT 토큰이나 다른 인증 정보를 사용하여 사용자를 식별하고
-             *       권한을 확인하기 위해서는 토큰을 해독하여 사용자 정보와 권한 정보를 추출해야 합니다.
-             *       이 역할은 jwtProvider.getAuthentication(jwt)에서 수행됩니다.
-             *       이 메서드는 JWT 토큰을 분석하여 사용자 정보와 권한 정보를 추출하고, 해당 정보로 인증 객체를 생성합니다.
-             *
-             *   2.  인증 정보 저장:
-             *       검증된 인증 객체를 SecurityContextHolder.getContext().setAuthentication(authentication);를
-             *       사용하여 SecurityContext에 저장하는 이유는, Spring Security에서 현재 사용자의 인증 정보를
-             *       전역적으로 사용할 수 있도록 하기 위함입니다. 이렇게 하면 다른 부분에서도 현재 사용자의 인증 정보를 사용할 수 있게 되며,
-             *       Spring Security가 제공하는 @AuthenticationPrincipal 어노테이션을 통해 현재 사용자 정보를 편리하게 가져올 수 있습니다.
-             * */
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } else {
-            log.error("유효한 JWT가 없습니다. : " + requestURI);
+                // Spring Security의 SecurityContextHolder를 사용하여 현재 인증 정보를 설정합니다.
+                // 이를 통해 현재 사용자가 인증된 상태로 처리됩니다.
+                // 위에서 jwtProvider.getAuthentication(jwt)가 반환이 UsernamePasswordAuthenticationToken로
+                // SecurityContext에 저장이 되는데 SecurityContextHolder.getContext().setAuthentication(authentication);
+                // 처리를 하는 이유는 다음과 같다.
+                /*
+                 *   1.  인증 정보 검증: JWT 토큰이나 다른 인증 정보를 사용하여 사용자를 식별하고
+                 *       권한을 확인하기 위해서는 토큰을 해독하여 사용자 정보와 권한 정보를 추출해야 합니다.
+                 *       이 역할은 jwtProvider.getAuthentication(jwt)에서 수행됩니다.
+                 *       이 메서드는 JWT 토큰을 분석하여 사용자 정보와 권한 정보를 추출하고, 해당 정보로 인증 객체를 생성합니다.
+                 *
+                 *   2.  인증 정보 저장:
+                 *       검증된 인증 객체를 SecurityContextHolder.getContext().setAuthentication(authentication);를
+                 *       사용하여 SecurityContext에 저장하는 이유는, Spring Security에서 현재 사용자의 인증 정보를
+                 *       전역적으로 사용할 수 있도록 하기 위함입니다. 이렇게 하면 다른 부분에서도 현재 사용자의 인증 정보를 사용할 수 있게 되며,
+                 *       Spring Security가 제공하는 @AuthenticationPrincipal 어노테이션을 통해 현재 사용자 정보를 편리하게 가져올 수 있습니다.
+                 * */
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (Exception e) {
+                throw new RuntimeException("잘못된 형식의 JWT입니다.");
+            }
         }
         filterChain.doFilter(request, response);
     }
@@ -105,13 +102,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
         log.info("token : " + token);
 
-        if(StringUtils.hasText(token) && token.startsWith("Bearer ")) {
+        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
             return token.substring(7);
-        } else if(StringUtils.hasText(token)) {
+        } else if (StringUtils.hasText(token)) {
             return token;
         } else {
             return null;
         }
     }
+
 
 }
