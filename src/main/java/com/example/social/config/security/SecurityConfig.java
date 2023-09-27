@@ -1,8 +1,8 @@
 package com.example.social.config.security;
 
-import com.example.study01.config.jwt.JwtProvider;
-import com.example.study01.config.jwt.JwtSecurityConfig;
-import com.example.study01.config.oauth2.PrincipalOAuth2UserService;
+import com.example.social.config.jwt.JwtProvider;
+import com.example.social.config.jwt.JwtSecurityConfig;
+import com.example.social.config.oauth2.PrincipalOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,6 +49,7 @@ public class SecurityConfig {
                 .userInfoEndpoint()
                 // OAuth2 로그인 성공 시, 후작업을 진행할 서비스
                 .userService(principalOauth2UserService);
+
 
         return http.build();
     }
