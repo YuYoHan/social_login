@@ -19,7 +19,13 @@ public class MemberDTO {
 
 
     @Builder
-    public MemberDTO(Long memberId, String email, String passwrod, String userName, String provider, String providerId, Role role) {
+    public MemberDTO(Long memberId,
+                     String email,
+                     String passwrod,
+                     String userName,
+                     String provider,
+                     String providerId,
+                     Role role) {
         this.memberId = memberId;
         this.email = email;
         this.passwrod = passwrod;

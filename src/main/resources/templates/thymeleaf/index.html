@@ -12,45 +12,5 @@
 <!-- 이걸 클릭하면 https://nid.naver.com/oauth2.0/authorize 여기로 보내짐-->
 <a id="naver-login" href="/oauth2/authorization/naver">네이버 로그인</a>
 
-<!--<script>-->
-<!--    // Google 소셜 로그인 클라이언트 ID-->
-<!--    const clientId = '1053255007616-du1f67oc5sbh4r4jbof05ndtt1svkggt.apps.googleusercontent.com';-->
-<!--    // 소셜 로그인 버튼 클릭 이벤트 핸들러-->
-<!--    document.getElementById('google-login').addEventListener('click', function () {-->
-<!--        // 소셜 로그인을 수행하고 accessToken을 받아옴-->
-<!--        // Google 소셜 로그인 API를 이용한 accessToken 요청 예시:-->
-<!--        /*-->
-<!--        *   oogle 소셜 로그인 버튼을 클릭하면 Google OAuth 2.0 인증 페이지로 리다이렉션되며,-->
-<!--        *   인증이 성공하면 access_token 및 id_token이 URL 파라미터로 반환됩니다.-->
-<!--        *   이후 JavaScript를 사용하여 URL 파라미터에서 access_token을 추출하고 서버로 전송할 수 있습니다.-->
-<!--        * */-->
-<!--        window.location.href=-->
-<!--            `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}-->
-<!--            &redirect_uri=${encodeURIComponent('http://localhost:8080/login/oauth2/code/google')}-->
-<!--            &response_type=token&scope=email profile`;-->
-
-<!--        // URL 파라미터에서 accessToken 추출-->
-<!--        const urlParams = new URLSearchParams(window.location.hash.substring(1));-->
-<!--        const accessToken = urlParams.get('access_token');-->
-
-<!--        if (accessToken) {-->
-<!--            // 서버로 accessToken 전송-->
-<!--            fetch('/success-oauth', {-->
-<!--                method : 'GET',-->
-<!--                headers : {-->
-<!--                    'Content-Type': 'application/json',-->
-<!--                    'Authorization': `Bearer ${accessToken}`-->
-<!--                }-->
-<!--            })-->
-<!--                .then(response => response.json())-->
-<!--                .then(data => {-->
-<!--                    // 서버에서 반환한 JWT 토큰 등을 처리-->
-<!--                    console.log(data)-->
-<!--                })-->
-<!--                .catch(error => console.error(error))-->
-<!--        }-->
-
-<!--    })-->
-<!--</script>-->
 </body>
 </html>

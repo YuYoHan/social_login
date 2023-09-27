@@ -22,13 +22,10 @@ repositories {
 }
 
 dependencies {
+    // JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     // oauth2
-    // 네이버 OAuth2 클라이언트 지원
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-    implementation 'org.springframework.security:spring-security-oauth2-resource-server'
-    implementation 'org.springframework.security:spring-security-oauth2-core'
-    implementation 'org.springframework.security:spring-security-oauth2-client'
     // security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     // jwt
@@ -36,14 +33,20 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    compileOnly 'org.projectlombok:lombok'
+    // 서버를 재실행 안해줘도 바로 처리가능하게 만드는 라이브러리
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    // MySQL
     runtimeOnly 'com.mysql:mysql-connector-j'
+    // 룸북
+    compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     // 유효성 검사 라이브러리
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    // swagger
+    implementation 'io.springfox:springfox-boot-starter:3.0.0'
+    // thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     // google api : 구글 accessToken 검증 api
     implementation 'com.google.api-client:google-api-client:1.31.1' // 최신 버전 확인
