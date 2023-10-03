@@ -13,25 +13,6 @@
     <!-- 이걸 클릭하면 https://nid.naver.com/oauth2.0/authorize 여기로 보내짐-->
     <a id="naver-login" href="/oauth2/authorization/naver">네이버 로그인</a>
 </div>
-<script>
-    // Google 로그인 버튼 클릭시 처리
-    document.getElementById('google-login').addEventListener('click', function () {
-        socialLogin('google');
-    })
-
-    // naver 로그인 버튼 클릭시 처리
-    document.getElementById('naver-login').addEventListener('click', function () {
-        socialLogin('naver');
-    })
-
-    // 소셜 로그인 처리함수
-    function socialLogin(provider) {
-        // 소셜 로그인 완료 후 받은 provider와 providerId 정보
-        const providerId = '';
-        // API 엔드포인트
-        const apiUrl = `/api/v1/users/social-login/${providerId}`;
-    }
-</script>
 
 </body>
 </html>

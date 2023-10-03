@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TokenRepository extends JpaRepository<TokenEntity, Long> {
     TokenEntity findByMemberEmail(String userEmail);
+    TokenEntity findByRefreshToken(String refreshToken);
 }

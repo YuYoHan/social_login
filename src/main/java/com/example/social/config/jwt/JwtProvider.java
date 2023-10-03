@@ -116,6 +116,45 @@ public class JwtProvider {
                 .build();
     }
 
+    // accessToken 만료시 refreshToken으로 accessToken 발급
+    public TokenDTO createAccessToken(String userEmail, List<GrantedAuthority> authorities) {
+        Long now = (new Date()).getTime();
+        Date now2 = new Date();
+        Date accessTokenExpire = new Date(now + this.accessTokenTime);
+
+        log.info("authorities : " + authorities);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(AUTHORITIES_KEY, authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList()));
+        // setSubject이다.
+        // 클레임에 subject를 넣는것
+        claims.put("sub", userEmail);
+
+        log.info("claims : " + claims);
+
+        String accessToken = Jwts.builder()
+                .setIssuedAt(now2)
+                .setClaims(claims)
+                .setExpiration(accessTokenExpire)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        log.info("accessToken in JwtProvider : " + accessToken);
+
+        // claims subject 확인 in JwtProvider : zxzz45@naver.com
+
+        TokenDTO tokenDTO = TokenDTO.builder()
+                .grantType("Bearer ")
+                .accessToken(accessToken)
+                .memberEmail(userEmail)
+                .build();
+
+        log.info("tokenDTO in JwtProvider : " + tokenDTO);
+        return tokenDTO;
+    }
+
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
 

@@ -1,6 +1,5 @@
 package com.example.social.config.oauth2;
 
-import com.example.social.config.jwt.JwtProvider;
 import com.example.social.entity.MemberEntity;
 import com.example.social.entity.TokenEntity;
 import com.example.social.repository.MemberRepositroy;
@@ -20,7 +19,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
-    private final JwtProvider jwtProvider;
     private final MemberRepositroy memberRepositroy;
     private final TokenRepository tokenRepository;
 

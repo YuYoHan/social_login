@@ -18,15 +18,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Log4j2
@@ -116,60 +112,6 @@ public class MemberService {
         return authorities;
     }
 
-    // 소셜 로그인
-    public ResponseEntity<?> socialLogin(String providerId) {
-        MemberEntity findUser = memberRepositroy.findByProviderId(providerId);
-        TokenEntity findToken = tokenRepository.findByMemberEmail(findUser.getEmail());
-
-        TokenDTO tokenDTO = TokenDTO.builder()
-                .id(findToken.getId())
-                .grantType(findToken.getGrantType())
-                .accessToken(findToken.getAccessToken())
-                .refreshToken(findToken.getRefreshToken())
-                .memberEmail(findToken.getMemberEmail())
-                .build();
-        log.info("token : " + tokenDTO);
-        return ResponseEntity.ok().body(tokenDTO);
-    }
-
-    // 소셜 로그인
-    public ResponseEntity<?> socialLogin2(MemberDTO memberDTO) throws Exception {
-        try {
-            MemberEntity findUser = memberRepositroy.findByEmail(memberDTO.getEmail());
-            log.info("user : " + findUser);
-
-            if(findUser.getProviderId() != null) {
-                findUser = MemberEntity.builder()
-                        .id(findUser.getId())
-                        .email(findUser.getEmail())
-                        .userName(findUser.getUserName())
-                        .provider(findUser.getProvider())
-                        .providerId(findUser.getProviderId())
-                        // 이게 추가로 받는 정보
-                        .nickName(memberDTO.getNickName())
-                        .build();
-
-                MemberEntity saveMember = memberRepositroy.save(findUser);
-
-                TokenEntity findToken = tokenRepository.findByMemberEmail(saveMember.getEmail());
-                log.info("token : " + findToken);
-
-                TokenDTO tokenDTO = TokenDTO.builder()
-                        .id(findToken.getId())
-                        .grantType(findToken.getGrantType())
-                        .accessToken(findToken.getAccessToken())
-                        .refreshToken(findToken.getRefreshToken())
-                        .memberEmail(findToken.getMemberEmail())
-                        .build();
-                log.info("token : " + tokenDTO);
-                return ResponseEntity.ok().body(tokenDTO);
-            } else {
-                return ResponseEntity.badRequest().body("소셜 로그인은 providerId가 없으면 안됩니다.");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("정보를 가지고 올 수 가 없습니다.");
-        }
-    }
 
     // 회원정보 수정
     public MemberDTO update(MemberDTO memberDTO, String userEmail) {
