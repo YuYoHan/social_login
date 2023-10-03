@@ -26,6 +26,7 @@ public class MemberEntity {
 
     private String provider;
     private String providerId;
+    private String nickName;
 
     @Builder
     public MemberEntity(Long id,
@@ -34,7 +35,8 @@ public class MemberEntity {
                         String userName,
                         Role role,
                         String provider,
-                        String providerId) {
+                        String providerId,
+                        String nickName) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -42,5 +44,6 @@ public class MemberEntity {
         this.role = role;
         this.provider = provider;
         this.providerId = providerId;
+        this.nickName = nickName;
     }
 }

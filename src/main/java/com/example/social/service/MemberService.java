@@ -18,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -42,15 +43,18 @@ public class MemberService {
         MemberEntity findMember = memberRepositroy.findByEmail(memberDTO.getEmail());
 
         if (findMember == null) {
-            MemberDTO member = MemberDTO.builder()
+            MemberEntity memberEntity = MemberEntity.builder()
                     .email(memberDTO.getEmail())
-                    .passwrod(passwordEncoder.encode(memberDTO.getPasswrod()))
+                    .password(passwordEncoder.encode(memberDTO.getPassword()))
                     .userName(memberDTO.getUserName())
                     .role(memberDTO.getRole())
+                    .nickName(memberDTO.getNickName())
                     .build();
 
-            log.info("member : " + member);
-            return ResponseEntity.ok().body(member);
+            MemberEntity save = memberRepositroy.save(memberEntity);
+            log.info("member : " + save);
+            MemberDTO memberDTO1 = MemberDTO.toMemberDTO(save);
+            return ResponseEntity.ok().body(memberDTO1);
         } else {
             log.info("이미 가입된 회원이 있습니다.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 가입된 회원이 있습니다.");
@@ -81,7 +85,6 @@ public class MemberService {
                             .build();
 
                     TokenEntity tokenEntity = TokenEntity.toTokenEntity(token);
-
                     tokenRepository.save(tokenEntity);
                 } else {
                     token = TokenDTO.builder()
@@ -96,6 +99,7 @@ public class MemberService {
                     tokenRepository.save(tokenEntity);
                 }
                 HttpHeaders headers = new HttpHeaders();
+
                 headers.add(JwtAuthenticationFilter.HEADER_AUTHORIZATION, "Bearer " + token);
                 return new ResponseEntity<>(token, headers, HttpStatus.OK);
             }
@@ -113,56 +117,101 @@ public class MemberService {
     }
 
     // 소셜 로그인
-    public ResponseEntity<?> login(OAuth2AuthenticationToken oAuth2AuthenticationToken,
-                                   OAuth2User oAuth2User) {
-        Map<String, Object> attributes = oAuth2User.getAttributes();
-        log.info("attributes : " + attributes);
+    public ResponseEntity<?> socialLogin(String providerId) {
+        MemberEntity findUser = memberRepositroy.findByProviderId(providerId);
+        TokenEntity findToken = tokenRepository.findByMemberEmail(findUser.getEmail());
 
-        String authorizedClientRegistrationId =
-                oAuth2AuthenticationToken.getAuthorizedClientRegistrationId();
-
-        String email = null;
-        TokenDTO jwt = null;
-        if (authorizedClientRegistrationId.equals("google")) {
-            email = (String) attributes.get("email");
-            log.info("email : " + email);
-
-            jwt = createJWT(email);
-            log.info("jwt : " + jwt);
-        } else if (authorizedClientRegistrationId.equals("naver")) {
-            Map<String, Object> response = (Map) attributes.get("response");
-
-            email = (String) response.get("email");
-            jwt = createJWT(email);
-            log.info("jwt : " + jwt);
-        } else {
-            log.info("아무런 정보를 받지 못했습니다.");
-        }
-        return ResponseEntity.ok().body(jwt);
+        TokenDTO tokenDTO = TokenDTO.builder()
+                .id(findToken.getId())
+                .grantType(findToken.getGrantType())
+                .accessToken(findToken.getAccessToken())
+                .refreshToken(findToken.getRefreshToken())
+                .memberEmail(findToken.getMemberEmail())
+                .build();
+        log.info("token : " + tokenDTO);
+        return ResponseEntity.ok().body(tokenDTO);
     }
 
-    private TokenDTO createJWT(String email) {
-        MemberEntity findUser = memberRepositroy.findByEmail(email);
-        List<GrantedAuthority> authoritiesForUser = getAuthoritiesForUser(findUser);
-        TokenDTO tokenForOAuth2 = jwtProvider.createTokenForOAuth2(email, authoritiesForUser);
-        TokenEntity findToken = tokenRepository.findByMemberEmail(tokenForOAuth2.getMemberEmail());
+    // 소셜 로그인
+    public ResponseEntity<?> socialLogin2(MemberDTO memberDTO) throws Exception {
+        try {
+            MemberEntity findUser = memberRepositroy.findByEmail(memberDTO.getEmail());
+            log.info("user : " + findUser);
 
-        if (findToken == null) {
-            TokenEntity tokenEntity = TokenEntity.toTokenEntity(tokenForOAuth2);
-            tokenRepository.save(tokenEntity);
-            log.info("token : " + tokenForOAuth2);
-        } else {
-            tokenForOAuth2 = TokenDTO.builder()
-                    .id(findToken.getId())
-                    .grantType(tokenForOAuth2.getGrantType())
-                    .accessToken(tokenForOAuth2.getAccessToken())
-                    .refreshToken(tokenForOAuth2.getRefreshToken())
-                    .memberEmail(tokenForOAuth2.getMemberEmail())
+            if(findUser.getProviderId() != null) {
+                findUser = MemberEntity.builder()
+                        .id(findUser.getId())
+                        .email(findUser.getEmail())
+                        .userName(findUser.getUserName())
+                        .provider(findUser.getProvider())
+                        .providerId(findUser.getProviderId())
+                        // 이게 추가로 받는 정보
+                        .nickName(memberDTO.getNickName())
+                        .build();
+
+                MemberEntity saveMember = memberRepositroy.save(findUser);
+
+                TokenEntity findToken = tokenRepository.findByMemberEmail(saveMember.getEmail());
+                log.info("token : " + findToken);
+
+                TokenDTO tokenDTO = TokenDTO.builder()
+                        .id(findToken.getId())
+                        .grantType(findToken.getGrantType())
+                        .accessToken(findToken.getAccessToken())
+                        .refreshToken(findToken.getRefreshToken())
+                        .memberEmail(findToken.getMemberEmail())
+                        .build();
+                log.info("token : " + tokenDTO);
+                return ResponseEntity.ok().body(tokenDTO);
+            } else {
+                return ResponseEntity.badRequest().body("소셜 로그인은 providerId가 없으면 안됩니다.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("정보를 가지고 올 수 가 없습니다.");
+        }
+    }
+
+    // 회원정보 수정
+    public MemberDTO update(MemberDTO memberDTO, String userEmail) {
+
+        MemberEntity findUser = memberRepositroy.findByEmail(userEmail);
+        log.info("findUser : " + findUser);
+
+        // 새로 가입
+        if (findUser == null) {
+            findUser = MemberEntity.builder()
+                    .email(memberDTO.getEmail())
+                    .password(passwordEncoder.encode(memberDTO.getPassword()))
+                    .role(memberDTO.getRole())
+                    .userName(memberDTO.getUserName())
+                    .nickName(memberDTO.getNickName())
                     .build();
 
-            TokenEntity tokenEntity = TokenEntity.toTokenEntity(tokenForOAuth2);
-            tokenRepository.save(tokenEntity);
+            memberRepositroy.save(findUser);
+            MemberDTO modifyUser = MemberDTO.toMemberDTO(findUser);
+            return modifyUser;
+        } else {
+            // 회원 수정
+            findUser = MemberEntity.builder()
+                    // id를 식별해서 수정
+                    // 이거 없으면 새로 저장하기 됨
+                    // findUser꺼를 쓰면 db에 입력된거를 사용하기 때문에
+                    // 클라이언트에서 userEmail을 전달하더라도 서버에서 기존 값으로 업데이트가 이루어질 것입니다.
+                    // 이렇게 하면 userEmail을 수정하지 못하게 할 수 있습니다.
+                    .id(findUser.getId())
+                    .email(findUser.getEmail())
+                    .password(passwordEncoder.encode(memberDTO.getPassword()))
+                    .userName(memberDTO.getUserName())
+                    .role(memberDTO.getRole())
+                    .nickName(memberDTO.getNickName())
+                    .build();
+
+            memberRepositroy.save(findUser);
+            // 제대로 DTO 값이 엔티티에 넣어졌는지 확인하기 위해서
+            // 엔티티에 넣어주고 다시 DTO 객체로 바꿔서 리턴을 해줬습니다.
+            MemberDTO memberDto = MemberDTO.toMemberDTO(findUser);
+            log.info("memberDto : " + memberDto);
+            return memberDto;
         }
-        return tokenForOAuth2;
     }
 }

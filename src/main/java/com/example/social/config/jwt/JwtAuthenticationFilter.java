@@ -1,10 +1,23 @@
 package com.example.social.config.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.webtoken.JsonWebToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -12,6 +25,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.Collections;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -19,6 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     public static final String HEADER_AUTHORIZATION = "Authorization";
     private final JwtProvider jwtProvider;
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String googleClientId;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -36,29 +54,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestURI = httpServletRequest.getRequestURI();
         log.info("uri JwtAuthenticationFilter : " + requestURI);
 
-        if(StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt)) {
-            // 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext에 저장
-            Authentication authentication = jwtProvider.getAuthentication(jwt);
-            log.info("authentication in JwtAuthenticationFilter : " + authentication);
+        if (StringUtils.hasText(jwt)) {
+            if(jwtProvider.validateToken(jwt)) {
+                // 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext에 저장
+                Authentication authentication = jwtProvider.getAuthentication(jwt);
+                log.info("authentication in JwtAuthenticationFilter : " + authentication);
 
-            // Spring Security의 SecurityContextHolder를 사용하여 현재 인증 정보를 설정합니다.
-            // 이를 통해 현재 사용자가 인증된 상태로 처리됩니다.
-            // 위에서 jwtProvider.getAuthentication(jwt)가 반환이 UsernamePasswordAuthenticationToken로
-            // SecurityContext에 저장이 되는데 SecurityContextHolder.getContext().setAuthentication(authentication);
-            // 처리를 하는 이유는 다음과 같다.
-            /*
-             *   1.  인증 정보 검증: JWT 토큰이나 다른 인증 정보를 사용하여 사용자를 식별하고
-             *       권한을 확인하기 위해서는 토큰을 해독하여 사용자 정보와 권한 정보를 추출해야 합니다.
-             *       이 역할은 jwtProvider.getAuthentication(jwt)에서 수행됩니다.
-             *       이 메서드는 JWT 토큰을 분석하여 사용자 정보와 권한 정보를 추출하고, 해당 정보로 인증 객체를 생성합니다.
-             *
-             *   2.  인증 정보 저장:
-             *       검증된 인증 객체를 SecurityContextHolder.getContext().setAuthentication(authentication);를
-             *       사용하여 SecurityContext에 저장하는 이유는, Spring Security에서 현재 사용자의 인증 정보를
-             *       전역적으로 사용할 수 있도록 하기 위함입니다. 이렇게 하면 다른 부분에서도 현재 사용자의 인증 정보를 사용할 수 있게 되며,
-             *       Spring Security가 제공하는 @AuthenticationPrincipal 어노테이션을 통해 현재 사용자 정보를 편리하게 가져올 수 있습니다.
-             * */
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                // Spring Security의 SecurityContextHolder를 사용하여 현재 인증 정보를 설정합니다.
+                // 이를 통해 현재 사용자가 인증된 상태로 처리됩니다.
+                // 위에서 jwtProvider.getAuthentication(jwt)가 반환이 UsernamePasswordAuthenticationToken로
+                // SecurityContext에 저장이 되는데 SecurityContextHolder.getContext().setAuthentication(authentication);
+                // 처리를 하는 이유는 다음과 같다.
+                /*
+                 *   1.  인증 정보 검증: JWT 토큰이나 다른 인증 정보를 사용하여 사용자를 식별하고
+                 *       권한을 확인하기 위해서는 토큰을 해독하여 사용자 정보와 권한 정보를 추출해야 합니다.
+                 *       이 역할은 jwtProvider.getAuthentication(jwt)에서 수행됩니다.
+                 *       이 메서드는 JWT 토큰을 분석하여 사용자 정보와 권한 정보를 추출하고, 해당 정보로 인증 객체를 생성합니다.
+                 *
+                 *   2.  인증 정보 저장:
+                 *       검증된 인증 객체를 SecurityContextHolder.getContext().setAuthentication(authentication);를
+                 *       사용하여 SecurityContext에 저장하는 이유는, Spring Security에서 현재 사용자의 인증 정보를
+                 *       전역적으로 사용할 수 있도록 하기 위함입니다. 이렇게 하면 다른 부분에서도 현재 사용자의 인증 정보를 사용할 수 있게 되며,
+                 *       Spring Security가 제공하는 @AuthenticationPrincipal 어노테이션을 통해 현재 사용자 정보를 편리하게 가져올 수 있습니다.
+                 * */
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         } else {
             log.error("유효한 JWT가 없습니다. : " + requestURI);
         }
@@ -72,9 +92,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
 
         // 토큰이 포함하거나 Bearer 로 시작하면 true
-        if(StringUtils.hasText(token) && token.startsWith("Bearer ")) {
+        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
             return token.substring(7);
-        } else if(StringUtils.hasText(token)) {
+        } else if (StringUtils.hasText(token)) {
             return token;
         } else {
             return null;

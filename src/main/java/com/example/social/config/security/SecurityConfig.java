@@ -2,6 +2,7 @@ package com.example.social.config.security;
 
 import com.example.social.config.jwt.JwtProvider;
 import com.example.social.config.jwt.JwtSecurityConfig;
+import com.example.social.config.oauth2.OAuth2SuccessHandler;
 import com.example.social.config.oauth2.PrincipalOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -23,6 +25,7 @@ public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
     private final PrincipalOAuth2UserService principalOauth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -48,7 +51,9 @@ public class SecurityConfig {
                 // OAuth2 로그인 성공 이후 사용자 정보를 가져올 때 설정 담당
                 .userInfoEndpoint()
                 // OAuth2 로그인 성공 시, 후작업을 진행할 서비스
-                .userService(principalOauth2UserService);
+                .userService(principalOauth2UserService)
+                .and()
+                .successHandler(oAuth2SuccessHandler);
 
         return http.build();
     }
@@ -57,7 +62,7 @@ public class SecurityConfig {
     PasswordEncoder passwordEncoder() {
         String idForEncode = "bcrypt";
         Map<String, PasswordEncoder> encoders = new HashMap<>();
-        encoders.put(idForEncode, new CustomBCryptPasswordEncoder());
+        encoders.put(idForEncode, new BCryptPasswordEncoder());
         return new DelegatingPasswordEncoder(idForEncode, encoders);
     }
 }
