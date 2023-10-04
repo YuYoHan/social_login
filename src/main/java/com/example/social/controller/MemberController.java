@@ -64,6 +64,19 @@ public class MemberController {
             return ResponseEntity.badRequest().body("잘못된 요청");
         }
     }
+
+    // 소셜 로그인
+//    @GetMapping("/api/v1/users/social-login/{providerId}")
+//    public ResponseEntity<?> socialLogin(@PathVariable String providerId) {
+//        try {
+//            log.info("providerId : " + providerId);
+//            ResponseEntity<?> responseEntity = memberService.socialLogin(providerId);
+//            return ResponseEntity.ok().body(responseEntity);
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().body("정보를 가지고 올 수 가 없습니다.");
+//        }
+//    }
+
     // refresh로 access 토큰 재발급
     // @RequsetHeader"Authorization")은 Authorization 헤더에서 값을 추출합니다.
     // 일반적으로 리프레시 토큰은 Authorization 헤더의 값으로 전달되며,

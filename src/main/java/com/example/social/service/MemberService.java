@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Log4j2
@@ -111,6 +112,22 @@ public class MemberService {
         log.info("권한 : " + role.name());
         return authorities;
     }
+
+//    // 소셜 로그인
+//    public ResponseEntity<?> socialLogin(String providerId) {
+//        MemberEntity findUser = memberRepositroy.findByProviderId(providerId);
+//        TokenEntity findToken = tokenRepository.findByMemberEmail(findUser.getEmail());
+//
+//        TokenDTO tokenDTO = TokenDTO.builder()
+//                .id(findToken.getId())
+//                .grantType(findToken.getGrantType())
+//                .accessToken(findToken.getAccessToken())
+//                .refreshToken(findToken.getRefreshToken())
+//                .memberEmail(findToken.getMemberEmail())
+//                .build();
+//        log.info("token : " + tokenDTO);
+//        return ResponseEntity.ok().body(tokenDTO);
+//    }
 
 
     // 회원정보 수정
